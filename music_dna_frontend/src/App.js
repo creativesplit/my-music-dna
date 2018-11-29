@@ -14,7 +14,8 @@ class App extends Component {
     this.state = {
       loggedIn: token ? true : false,
       nowPlaying: { name: 'Not Checked', albumArt: '' },
-      userData: {name: '', birthdate: 0, email:''}
+      userData: {name: '', email:''},
+      topArtists: {name: '', popularity: 0}
     }
   }
   
@@ -30,6 +31,15 @@ class App extends Component {
     }
     return hashParams;
   }
+
+  // Constr.prototype.getMyTopArtists = function(options, callback) {
+  //   var requestData = {
+  //     url: _baseUri + '/me/top/artists'
+  //   };
+  //   return _checkParamsAndPerformRequest(requestData, options, callback);
+  // };
+
+
   // Constr.prototype.getMe = function(options, callback) {
   //   var requestData = {
   //     url: _baseUri + '/me'
@@ -39,12 +49,11 @@ class App extends Component {
 
   getUserData(){
     spotifyApi.getMe()
-    .then((data) => {
+    .then((response) => {
       this.setState({
         userData: {
-          name: data.display_name,
-          birthdate: data.birthdate,
-          email: data.email
+          name: response.display_name,
+          email: response.email
         }
       })
     })
@@ -67,6 +76,18 @@ class App extends Component {
         });
       })
   }
+  
+  getTopArtists(){
+    spotifyApi.getMyTopArtists()
+    .then((response)=> {
+      this.setState({
+        topArtists: {
+          name: response.artist,
+          popularity: response.popularity
+        }
+      })
+    })
+  }
 
   render() {
     return (
@@ -76,15 +97,15 @@ class App extends Component {
           Now Playing: { this.state.nowPlaying.name }
         </div>
         <div> User Name: {this.state.userData.name}</div>
-        <div> User Birthdate: {this.state.userData.birthdate}</div>
         <div> User email: {this.state.userData.email}</div>
+        <div> Top Arists: {this.state.topArtists.name}</div>
 
         <div>
           <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
         </div>
         { this.state.loggedIn &&
           <button onClick={() => this.getNowPlaying()}>
-            Check Now Playing
+            Check Now Playing / Get User Data
           </button>
         }
         { this.state.loggedIn &&
@@ -92,9 +113,14 @@ class App extends Component {
             Get User Data
           </button>
         }
+        { this.state.loggedIn &&
+          <button onClick={() => this.getTopArtists()}>
+            Get Top Artists
+          </button>
+        }
       </div>
     );
   }
-}
+  }
 
 export default App;
